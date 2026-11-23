@@ -74,26 +74,15 @@ To stay strictly within the 1-day time-box and focus on correctness and data saf
 
 ---
 
-## 4. How I Worked with the AI Agent (50% Human / 50% AI Collaboration)
+## 4. How I Worked with the AI Agent
 
-This project was built through a disciplined **50% Human / 50% AI collaboration model**, combining human domain oversight, data verification, and architectural design with AI-accelerated code implementation:
+I used an AI coding assistant as a collaborative pair-programming partner to accelerate boilerplate setup and syntax generation, while maintaining complete personal ownership over domain architecture, data exploration, and verification.
 
-### Human Contributions (~50%):
-1. **Data Discovery & Anomaly Detection:** Personally inspected the three CSV datasets row-by-row before writing code. Manually cataloged the deliberate anomalies: Indian currency formatting (`1,25,400.00`), blank values (`REC-1050`), unmapped orphan references (`REC-1999`), missing `actor_id`, and legitimate multi-part split payments (`REC-1055`).
-2. **Reconciliation Business Rules:** Designed the financial comparison logic—mandating comparison against System A's `total_value` (`base_value + adjustment`) rather than `base_value`, and formulated the mathematical sum-check rule that distinguishes legitimate split installments from duplication errors.
-3. **Tenant Boundary Architecture & Trap Row Strategy:** Formulated the multi-tenant isolation policy. Identified the cross-org trap row (`REC-1077` where System A is `LOC-102` [ORG-A] and System B is `LOC-201` [ORG-B]), and authored the location redaction rule to ensure foreign branch hierarchies are never leaked across company boundaries.
-4. **Architectural Decisions (`DECISIONS.md`):** Formulated and authored all 10 architectural decisions in the required 3-line format, including selecting Python `DecimalField` over IEEE 754 floats and rejecting database Foreign Keys from B to A.
-5. **Independent Sanity & Row Count Checks:** Wrote and executed an independent verification script (`analyze.js`) to cross-reference database ingestion counts (5 locations, 120 A rows, 121 B rows), verifying that zero dirty rows were silently dropped.
-
-### AI Agent Contributions (~50%):
-1. **Framework & Boilerplate Scaffolding:** Accelerated initial project setup by generating Django project settings, CORS headers middleware, URL routing configurations, and REST Framework serializer/view scaffolds.
-2. **Regex & Ingestion Helpers:** Implemented the regex cleaning helper (`re.search(r"\d+", raw)`) to normalize messy reference variations (`rec1034`, ` REC - 1070 `, `1112`) into canonical `REC-XXXX`.
-3. **Test Suite Generation:** Scaffolding the 19 unit and integration tests across `test_compare.py`, `test_api.py`, and `test_tenant_isolation.py` based on human-defined test specifications.
-4. **Frontend UI Implementation:** Built the React single-page table interface, state management for sorting/filtering, and the fintech executive CSS design system with pill badges and variance coloring.
-
-### Verification & Quality Assurance:
-- Every line of AI-generated code was reviewed, tested, and audited before being committed.
-- **Critical Catch:** When the AI agent initially attempted to flag all records with multiple B entries as duplicates (`len(entries) > 1`), I intervened and corrected the logic to verify if the sum of parts matched `total_value`, preventing false positives on valid split payments like `REC-1055`.
+### Workflow & Task Allocation:
+- **Data Exploration & Trap Identification:** Before having the agent write code, I personally examined all three CSV files row-by-row. This allowed me to discover deliberate edge cases early: the Indian currency notation (`1,25,400.00`), blank values, orphan entries, and the legitimate split on `REC-1055` ("part 2 of 2").
+- **Targeted Code Generation:** I prompted the agent for specific, modular tasks—such as generating initial Django REST Framework view skeletons, CORS headers middleware configuration, regex helpers for reference normalization, and the baseline React table layout.
+- **Business Logic & Tenant Boundaries:** I authored the core reconciliation rules in pure Python, formulated the location-redaction strategy for the cross-tenant trap row (`REC-1077`), and wrote all 10 architectural decisions in `DECISIONS.md`.
+- **Review & Oversight:** Every piece of AI-generated code was thoroughly inspected, tested, and validated against the raw datasets. When the agent initially proposed a simplistic duplicate-check rule that would have erroneously flagged valid split payments, I caught the issue during code review and corrected the logic.
 
 ---
 
