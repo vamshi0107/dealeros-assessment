@@ -16,7 +16,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from reconcile.views import DisagreementsAPIView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/disagreements/', DisagreementsAPIView.as_view(), name='disagreements-api'),
 ]
